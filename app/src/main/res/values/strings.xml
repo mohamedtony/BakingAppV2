@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BakingApp</string>
+    <string name="appwidget_text">Nothing To Show Please Open The App and Select the Receipe to show</string>
+    <string name="add_widget">Add widget</string>
+</resources>

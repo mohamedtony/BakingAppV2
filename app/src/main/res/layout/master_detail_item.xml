@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context="com.example.android.bakingapp.activity.ReceipeDetailActivity">
+
+    <TextView
+        android:id="@+id/tv_ingredients"
+        android:textSize="18sp"
+        android:text="Ingredients"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText"
+        android:layout_marginLeft="20sp"
+        android:layout_marginRight="20sp"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignEnd="@+id/tv_recipe_detail" />
+
+    <TextView
+        android:id="@+id/tv_recipe_detail"
+        android:textSize="18sp"
+        android:text="Mohamed Tony Hamad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText"
+        android:layout_marginLeft="20sp"
+        android:layout_marginRight="20sp"
+        android:layout_marginTop="14dp"
+        android:layout_below="@+id/tv_ingredients"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/tv_steps"
+        android:textSize="18sp"
+        android:text="Steps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText"
+        android:layout_marginLeft="20sp"
+        android:layout_marginRight="20sp"
+        android:layout_below="@+id/tv_recipe_detail"
+        android:layout_centerHorizontal="true" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recipes_detail_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tv_steps"
+        android:layout_marginTop="15dp">
+
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>
+</ScrollView>
