@@ -62,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
                 bakingAdapter=new BakingAdapter(MainActivity.this,bakingResponse);
                 mRecyclerView.setAdapter(bakingAdapter);
 
+                mRecyclerView.getLayoutManager().scrollToPosition(3);
+                mRecyclerView.getAdapter().notifyDataSetChanged();
+
                 idlingResource.decrement();
             }
 

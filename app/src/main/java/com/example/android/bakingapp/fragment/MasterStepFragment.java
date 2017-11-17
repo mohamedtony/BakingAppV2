@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.utilities.BakingSteps;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -57,6 +58,7 @@ public class MasterStepFragment extends Fragment implements VideoRendererEventLi
     private boolean playWhenReady=true;
     private BakingSteps bakingResponse;
     private static final String TAG = "MasterStepFragment";
+    public static String SELECTED_POSITION="position";
 
     @Nullable
     @Override
@@ -82,10 +84,18 @@ public class MasterStepFragment extends Fragment implements VideoRendererEventLi
         simpleExoPlayerView = new SimpleExoPlayerView(getContext());
         simpleExoPlayerView = (SimpleExoPlayerView)  rootViiew.findViewById(R.id.video_view);
 
+        playbackPosition = C.TIME_UNSET;
+        if (savedInstanceState != null) {
+            //...your code...
+            playbackPosition = savedInstanceState.getLong(SELECTED_POSITION, C.TIME_UNSET);
+        }
+
 
         simpleExoPlayerView.setUseController(true);
         simpleExoPlayerView.requestFocus();
         simpleExoPlayerView.setResizeMode(View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE);
+
+
 
 
         simpleExoPlayerView.setPlayer(player);
@@ -105,6 +115,7 @@ public class MasterStepFragment extends Fragment implements VideoRendererEventLi
 
         final MediaSource mediaSource = buildMediaSource(MyVideoUrl);
         player.prepare(mediaSource, true, false);
+        player.seekTo(playbackPosition);
 
 
 
@@ -187,6 +198,13 @@ public class MasterStepFragment extends Fragment implements VideoRendererEventLi
             player.release();
             player = null;
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(SELECTED_POSITION,playbackPosition);
+
     }
 
     @Override

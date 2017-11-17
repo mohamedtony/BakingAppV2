@@ -36,6 +36,7 @@ public class ReceipeDetailActivity extends AppCompatActivity implements RecipeDe
 
         Bundle bundle = new Bundle();
         bundle.putParcelable("baking_me", bakingResponse);
+        bundle.putInt("isCreated",1);
 
 
         getSupportActionBar().setTitle(bakingResponse.getName());
@@ -46,11 +47,11 @@ public class ReceipeDetailActivity extends AppCompatActivity implements RecipeDe
         masterDetailFragment.setArguments(bundle);
 
 
-        if(findViewById(R.id.master_fragment_container)!=null) {
+       // if(findViewById(R.id.master_fragment_container)==null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.master_fragment_container, masterDetailFragment)
                     .commit();
-        }
+        //}
 
 
         if (findViewById(R.id.baking_detail_linear_layout) != null) {
