@@ -19,8 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.ReceipeDetailActivity" />
-        <activity android:name=".activity.StepDetailActivity" />
+        <activity android:name=".activity.ReceipeDetailActivity"
+            android:configChanges="orientation|screenSize"
+            />
+        <activity android:name=".activity.StepDetailActivity"
+            android:configChanges="orientation|screenSize"
+            />
 
         <receiver android:name=".myappwidget.MyBakingWidgetProvider">
             <intent-filter>

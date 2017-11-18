@@ -5,176 +5,179 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.bakingapp.R;
 import com.example.android.bakingapp.utilities.BakingSteps;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.LoadControl;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by medo on 30-Oct-17.
  */
 
-public class MasterStepFragment extends Fragment implements VideoRendererEventListener {
+public class MasterStepFragment extends Fragment {
     public MasterStepFragment(){
 
     }
+    private boolean myPlayWhenReady = true;
+    private int myCurrentWindow;
+    private long myCurrentVideoPosition;
+    private TextView DetailDescription;
+    private ImageView img_cake;
+
+    private static final String STEP = "step";
+    private static final String POSITION_VIDEO = "position_video";
+    private static final String PLAY_WHEN_READY = "play_when_ready";
+    private static final String CURRENT_WINDOW = "current_window";
+
+    private BakingSteps myStep;
+    private View rootView;
+    private SimpleExoPlayer myPlayer;
+    private SimpleExoPlayerView myPlayerView;
 
 
-    private SimpleExoPlayer player;
-    private SimpleExoPlayerView simpleExoPlayerView;
-    private long playbackPosition;
-    private int currentWindow;
-    private boolean playWhenReady=true;
-    private BakingSteps bakingResponse;
-    private static final String TAG = "MasterStepFragment";
-    public static String SELECTED_POSITION="position";
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+
+
+    }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        //inflate fragment_body_part layout
-        View rootViiew = inflater.inflate(R.layout.master_step_item, container, false);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        if (rootView == null) {
 
-        TextView textView=(TextView)rootViiew.findViewById(R.id.step_instruction);
+            rootView = inflater.inflate(R.layout.master_step_item, container, false);
+            myPlayerView=(SimpleExoPlayerView)rootView.findViewById(R.id.video_view);
+            DetailDescription=(TextView)rootView.findViewById(R.id.step_instruction);
+            img_cake=(ImageView)rootView.findViewById(R.id.img_thumbnail);
+            Bundle b= getArguments();
+            if(b!=null) {
+                myStep = (BakingSteps) b.getParcelable("baking_fragment_step");
+            }
 
-        Bundle b= getArguments();
-         bakingResponse=(BakingSteps) b.getParcelable("baking_fragment_step");
-
-        textView.setText(bakingResponse.getDescription());
-
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-
-        LoadControl loadControl = new DefaultLoadControl();
-
-
-        player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
-        simpleExoPlayerView = new SimpleExoPlayerView(getContext());
-        simpleExoPlayerView = (SimpleExoPlayerView)  rootViiew.findViewById(R.id.video_view);
-
-        playbackPosition = C.TIME_UNSET;
-        if (savedInstanceState != null) {
-            //...your code...
-            playbackPosition = savedInstanceState.getLong(SELECTED_POSITION, C.TIME_UNSET);
         }
 
-
-        simpleExoPlayerView.setUseController(true);
-        simpleExoPlayerView.requestFocus();
-        simpleExoPlayerView.setResizeMode(View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE);
-
-
-
-
-        simpleExoPlayerView.setPlayer(player);
-
-        Uri MyVideoUrl =Uri.parse(bakingResponse.getVideoURL());
-
-        buildMediaSource(MyVideoUrl);
-
-
-
-        DefaultBandwidthMeter bandwidthMeterA = new DefaultBandwidthMeter();
-        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(getContext(), Util.getUserAgent(getContext(), "bakingapp"), bandwidthMeterA);
-        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-
-
-
-
-        final MediaSource mediaSource = buildMediaSource(MyVideoUrl);
-        player.prepare(mediaSource, true, false);
-        player.seekTo(playbackPosition);
-
-
-
-// Prepare the player with the source.
-      //  player.prepare(loopingSource);
-
-        player.addListener(new ExoPlayer.EventListener() {
-
-
-            @Override
-            public void onTimelineChanged(Timeline timeline, Object manifest) {
-
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STEP)) {
+                myStep = (BakingSteps) savedInstanceState.getParcelable(STEP);
             }
-
-            @Override
-            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
+            if (savedInstanceState.containsKey(CURRENT_WINDOW)) {
+                myCurrentWindow = (Integer)savedInstanceState.getInt(CURRENT_WINDOW);
             }
-
-            @Override
-            public void onLoadingChanged(boolean isLoading) {
-
+            if (savedInstanceState.containsKey(POSITION_VIDEO)) {
+                myCurrentVideoPosition =(Long) savedInstanceState.getLong(POSITION_VIDEO);
             }
-
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
+            if (savedInstanceState.containsKey(PLAY_WHEN_READY)) {
+                myPlayWhenReady = (Boolean)savedInstanceState.getBoolean(PLAY_WHEN_READY);
             }
+        }
 
-            @Override
-            public void onPlayerError(ExoPlaybackException error) {
-
-                player.stop();
-                player.prepare(mediaSource);
-                player.setPlayWhenReady(true);
-
+        if (myStep != null) {
+            DetailDescription.setText(myStep.getDescription());
+            if (myStep.getVideoURL().isEmpty()) {
+                Toast.makeText(getContext(), " Oops!, Sorry there is no video to show ", Toast.LENGTH_SHORT).show();
+                myPlayerView.setVisibility(View.GONE);
             }
-
-            @Override
-            public void onPositionDiscontinuity() {
-
+            if (!myStep.getThumbnailURL().isEmpty()) {
+                Picasso.with(getContext()).load(myStep.getThumbnailURL())
+                        .into(img_cake);
+            } else {
+                img_cake.setVisibility(View.GONE);
             }
-
-            @Override
-            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-            }
-        });
-
-        player.setPlayWhenReady(true);
-        player.setVideoDebugListener(this);
-
-        return rootViiew;
+        }
+        return rootView;
     }
+
+    private void initializePlayer(String url) {
+        if (myPlayer == null) {
+            myPlayer = ExoPlayerFactory.newSimpleInstance(
+                    new DefaultRenderersFactory(getContext()),
+                    new DefaultTrackSelector(),
+                    new DefaultLoadControl());
+
+            if(myPlayerView!=null){
+               myPlayerView.setPlayer(myPlayer);
+                myPlayerView.setResizeMode(View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE);
+            }
+
+            myPlayer.setPlayWhenReady(myPlayWhenReady);
+
+            Uri uri = Uri.parse(url);
+            MediaSource mediaSource = buildMediaSource(uri);
+            boolean haveResumePosition = myCurrentWindow != C.INDEX_UNSET;
+            myPlayer.prepare(mediaSource, !haveResumePosition, false);
+            if (haveResumePosition) {
+                myPlayer.seekTo(myCurrentWindow, myCurrentVideoPosition);
+            }
+        }
+    }
+
     private MediaSource buildMediaSource(Uri uri) {
         return new ExtractorMediaSource(uri,
-                new DefaultHttpDataSourceFactory("ua"),
+                new DefaultDataSourceFactory(getContext(), getString(R.string.app_name)),
                 new DefaultExtractorsFactory(), null, null);
     }
+    private void releasePlayer() {
+        if (myPlayer != null) {
+            myCurrentVideoPosition = myPlayer.getCurrentPosition();
+            myCurrentWindow = myPlayer.getCurrentWindowIndex();
+            myPlayWhenReady = myPlayer.getPlayWhenReady();
+            myPlayer.release();
+            myPlayer = null;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(STEP, myStep);
+        outState.putLong(POSITION_VIDEO, Math.max(0, myCurrentVideoPosition));
+        outState.putInt(CURRENT_WINDOW, myCurrentWindow);
+        outState.putBoolean(PLAY_WHEN_READY, myPlayWhenReady);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            if (!myStep.getVideoURL().isEmpty()) {
+               initializePlayer(myStep.getVideoURL());
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if ((Util.SDK_INT <= 23 || myPlayer == null)) {
+            if (!myStep.getVideoURL().isEmpty()) {
+              initializePlayer(myStep.getVideoURL());
+            }
+        }
+    }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -189,56 +192,5 @@ public class MasterStepFragment extends Fragment implements VideoRendererEventLi
         if (Util.SDK_INT > 23) {
             releasePlayer();
         }
-    }
-    private void releasePlayer() {
-        if (player != null) {
-            playbackPosition = player.getCurrentPosition();
-            currentWindow = player.getCurrentWindowIndex();
-            playWhenReady = player.getPlayWhenReady();
-            player.release();
-            player = null;
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putLong(SELECTED_POSITION,playbackPosition);
-
-    }
-
-    @Override
-    public void onVideoEnabled(DecoderCounters counters) {
-
-    }
-
-    @Override
-    public void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-
-    }
-
-    @Override
-    public void onVideoInputFormatChanged(Format format) {
-
-    }
-
-    @Override
-    public void onDroppedFrames(int count, long elapsedMs) {
-
-    }
-
-    @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-
-    }
-
-    @Override
-    public void onRenderedFirstFrame(Surface surface) {
-
-    }
-
-    @Override
-    public void onVideoDisabled(DecoderCounters counters) {
-
     }
 }
